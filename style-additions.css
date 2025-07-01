@@ -1,0 +1,391 @@
+/* Additional CSS for Tab Content */
+
+/* Tab Content Styling */
+.tab-content {
+    padding: var(--spacing-lg);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: var(--spacing-md);
+    min-height: 400px;
+}
+
+/* Overview Content */
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.stat-card {
+    background: var(--gray-100);
+    padding: var(--spacing-lg);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.stat-card h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+}
+
+.stat-card p {
+    margin: var(--spacing-xs) 0;
+    color: var(--gray-700);
+}
+
+/* Domain Cards */
+.domains-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.domain-card {
+    background: white;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    padding: var(--spacing-lg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.domain-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.domain-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.domain-header h4 {
+    margin: 0;
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+}
+
+.domain-status {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.domain-details p {
+    margin: var(--spacing-xs) 0;
+    color: var(--gray-700);
+    font-size: 0.9rem;
+}
+
+.domain-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--gray-300);
+}
+
+.domain-metrics span {
+    background: var(--gray-100);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--gray-700);
+}
+
+.domain-metrics.detailed {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.metric-row span {
+    flex: 1;
+    text-align: center;
+}
+
+/* User Stats Grid */
+.user-stats-grid,
+.computer-stats-grid,
+.security-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.user-stat-card,
+.computer-stat-card,
+.security-stat-card {
+    background: white;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.user-stat-card:hover,
+.computer-stat-card:hover,
+.security-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.user-stat-card.active {
+    border-left: 4px solid var(--success);
+}
+
+.user-stat-card.disabled {
+    border-left: 4px solid var(--error);
+}
+
+.user-stat-card.locked {
+    border-left: 4px solid var(--warning);
+}
+
+.computer-stat-card.active {
+    border-left: 4px solid var(--success);
+}
+
+.computer-stat-card.inactive {
+    border-left: 4px solid var(--error);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.stat-info h4 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--primary-dark);
+}
+
+.stat-info p {
+    margin: var(--spacing-xs) 0 0 0;
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Content Sections */
+.content-section {
+    background: var(--gray-100);
+    padding: var(--spacing-lg);
+    border-radius: 8px;
+    margin-top: var(--spacing-lg);
+}
+
+.content-section h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--primary-dark);
+}
+
+.content-section p {
+    margin: var(--spacing-sm) 0;
+    color: var(--gray-700);
+}
+
+/* Info Box */
+.info-box {
+    background: var(--primary-light);
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+}
+
+.info-box p {
+    margin: 0;
+    color: var(--gray-600);
+    font-style: italic;
+}
+
+/* Reports Section */
+.reports-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.report-card {
+    background: white;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    padding: var(--spacing-lg);
+}
+
+.report-card h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--primary-dark);
+    border-bottom: 2px solid var(--primary-blue);
+    padding-bottom: var(--spacing-sm);
+}
+
+.report-card ul {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-md) 0;
+}
+
+.report-card li {
+    padding: var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+}
+
+.report-card li:last-child {
+    border-bottom: none;
+}
+
+/* Connectivity Status */
+.connectivity-status {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--gray-300);
+}
+
+.connectivity-status p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Last Refresh */
+.last-refresh {
+    text-align: center;
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--gray-300);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .overview-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .domains-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-stats-grid,
+    .computer-stats-grid,
+    .security-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .reports-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .domain-metrics {
+        flex-direction: column;
+    }
+    
+    .metric-row {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-stats-grid,
+    .computer-stats-grid,
+    .security-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tab-content {
+        padding: var(--spacing-md);
+    }
+    
+    .stat-card,
+    .domain-card,
+    .report-card {
+        padding: var(--spacing-md);
+    }
+}
+
+/* Loading States */
+.tab-content.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.tab-content.loading::after {
+    content: "Loading...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Configuration Needed State */
+.configuration-needed {
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.setup-steps {
+    text-align: left;
+    max-width: 500px;
+    margin: var(--spacing-lg) auto;
+}
+
+.setup-steps ol {
+    padding-left: var(--spacing-lg);
+}
+
+.setup-steps li {
+    margin: var(--spacing-sm) 0;
+    color: var(--gray-700);
+}
+
+.config-btn {
+    display: inline-block;
+    background: var(--primary-blue);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-decoration: none;
+    border-radius: 6px;
+    margin-top: var(--spacing-lg);
+    transition: background-color 0.2s ease;
+}
+
+.config-btn:hover {
+    background: var(--primary-dark);
+}
+
+/* Domain Overview */
+.domains-overview {
+    background: var(--gray-100);
+    padding: var(--spacing-lg);
+    border-radius: 8px;
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+}
+
+.domains-overview p {
+    margin: 0;
+    color: var(--gray-700);
+    font-size: 1.1rem;
+}
+
