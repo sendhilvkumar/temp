@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Multi-Domain Active Directory Dashboard</title>
+    <link rel="stylesheet" href="style-additions.css">
+    <style>
+        /* Enhanced Dashboard Styles */
+        :root {
+            --primary-blue: #3498db;
+            --primary-dark: #2c3e50;
+            --primary-light: #ecf0f1;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-xxl: 3rem;
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: var(--spacing-lg);
+            color: var(--gray-800);
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .header h1 {
+            color: var(--primary-dark);
+            font-size: 1.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header-icon {
+            font-size: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .domain-selector {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            background: white;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .refresh-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.8;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .metric-change {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+        }
+
+        /* Tabs Container */
+        .tabs-container {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .tabs-header {
+            display: flex;
+            background: var(--gray-100);
+            border-bottom: 1px solid var(--gray-300);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray-600);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            background: var(--gray-200);
+            color: var(--primary-dark);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        .tab-content {
+            padding: var(--spacing-xl);
+            min-height: 400px;
+        }
+
+        /* Loading state */
+        .loading-state {
+            text-align: center;
+            padding: var(--spacing-xxl);
+            color: var(--gray-600);
+        }
+
+        /* Info box styles */
+        .info-box {
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin: var(--spacing-lg) 0;
+            border-left: 4px solid var(--info);
+        }
+
+        .info-box h3 {
+            color: var(--primary-dark);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.25rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--spacing-md);
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+
+            .metric-icon {
+                font-size: 2.5rem;
+            }
+
+            .tabs-header {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Enhanced Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>
+                    <span class="header-icon">🏢</span>
+                    Enhanced Multi-Domain Active Directory Dashboard
+                </h1>
+            </div>
+            <div class="header-actions">
+                <select class="domain-selector" id="domainSelector" aria-label="Select Domain">
+                    <option value="all">All Domains</option>
+                </select>
+                <button class="refresh-btn" onclick="location.reload()" aria-label="Refresh Data">
+                    <span>🔄</span>
+                    <span>Refresh Data</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Enhanced Metrics Grid -->
+        <section class="metrics-grid" role="region" aria-label="Key Metrics">
+            <div class="metric-card" id="totalUsers">
+                <div class="metric-icon" aria-hidden="true">👥</div>
+                <div class="metric-label">TOTAL USERS</div>
+                <div class="metric-value" id="totalUsersValue">8,293</div>
+                <div class="metric-change">-</div>
+            </div>
+
+            <div class="metric-card" id="activeComputers">
+                <div class="metric-icon" aria-hidden="true">💻</div>
+                <div class="metric-label">ACTIVE COMPUTERS</div>
+                <div class="metric-value" id="activeComputersValue">8,887</div>
+                <div class="metric-change">-</div>
+            </div>
+
+            <div class="metric-card" id="securityGroups">
+                <div class="metric-icon" aria-hidden="true">🛡️</div>
+                <div class="metric-label">SECURITY GROUPS</div>
+                <div class="metric-value" id="securityGroupsValue">4,598</div>
+                <div class="metric-change">-</div>
+            </div>
+
+            <div class="metric-card" id="domainControllers">
+                <div class="metric-icon" aria-hidden="true">🖥️</div>
+                <div class="metric-label">DOMAIN CONTROLLERS</div>
+                <div class="metric-value" id="domainControllersValue">252</div>
+                <div class="metric-change">-</div>
+            </div>
+        </section>
+
+        <!-- Enhanced Tabs Container -->
+        <main class="tabs-container">
+            <nav class="tabs-header" role="tablist" aria-label="Dashboard Navigation">
+                <button class="tab-btn active" role="tab" data-tab="overview" aria-selected="true" aria-controls="tabContent">
+                    📊 Overview
+                </button>
+                <button class="tab-btn" role="tab" data-tab="users" aria-selected="false" aria-controls="tabContent">
+                    👥 Users
+                </button>
+                <button class="tab-btn" role="tab" data-tab="computers" aria-selected="false" aria-controls="tabContent">
+                    💻 Computers
+                </button>
+                <button class="tab-btn" role="tab" data-tab="security" aria-selected="false" aria-controls="tabContent">
+                    🔒 Security
+                </button>
+                <button class="tab-btn" role="tab" data-tab="domains" aria-selected="false" aria-controls="tabContent">
+                    🏢 Domains
+                </button>
+                <button class="tab-btn" role="tab" data-tab="reports" aria-selected="false" aria-controls="tabContent">
+                    📋 Reports
+                </button>
+            </nav>
+            <div class="tab-content" id="tabContent" role="tabpanel" aria-live="polite">
+                <!-- Dynamic content will be generated here -->
+                <div class="loading-state">
+                    <h3>📊 Loading Dashboard Content...</h3>
+                    <p>Initializing Active Directory dashboard with embedded data...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load the scripts in the same order as the test file -->
+    <script src="enhanced-dashboard-data.js"></script>
+    <script src="content-generator.js"></script>
+    
+    <script>
+        // Initialize dashboard state
+        window.dashboardState = {
+            currentDomain: 'all',
+            consolidatedData: null,
+            lastUpdate: null
+        };
+
+        // Simple initialization like the test file
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Enhanced Multi-Domain AD Dashboard Starting...');
+            
+            // Check for embedded data
+            if (window.embeddedConsolidatedData) {
+                console.log('✅ Found embedded data, using it directly');
+                window.dashboardState.consolidatedData = window.embeddedConsolidatedData;
+                
+                // Update metrics from embedded data
+                const summary = window.embeddedConsolidatedData.aggregatedSummary;
+                if (summary) {
+                    document.getElementById('totalUsersValue').textContent = summary.totalUsers?.toLocaleString() || '8,293';
+                    document.getElementById('activeComputersValue').textContent = summary.activeComputers?.toLocaleString() || '8,887';
+                    document.getElementById('securityGroupsValue').textContent = summary.securityGroups?.toLocaleString() || '4,598';
+                    document.getElementById('domainControllersValue').textContent = summary.domainControllers?.toLocaleString() || '252';
+                }
+            } else {
+                console.warn('⚠️ No embedded data found, using default values');
+                // Keep the default values that are already in the HTML
+            }
+            
+            // Set up tab click handlers (exactly like test file)
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('🎯 Tab clicked:', tabName);
+                    
+                    // Update active tab
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Generate content
+                    const tabContent = document.getElementById('tabContent');
+                    let content = '';
+                    
+                    try {
+                        if (typeof ContentGenerator === 'undefined') {
+                            console.warn('⚠️ ContentGenerator not available');
+                            content = '<div class="info-box"><p>ContentGenerator not loaded. Please check that content-generator.js is included.</p></div>';
+                        } else {
+                            console.log('✅ ContentGenerator available, generating content for:', tabName);
+                            
+                            switch (tabName) {
+                                case 'overview':
+                                    content = ContentGenerator.generateOverviewContent();
+                                    break;
+                                case 'users':
+                                    content = ContentGenerator.generateUsersContent();
+                                    break;
+                                case 'computers':
+                                    content = ContentGenerator.generateComputersContent();
+                                    break;
+                                case 'security':
+                                    content = ContentGenerator.generateSecurityContent();
+                                    break;
+                                case 'domains':
+                                    content = ContentGenerator.generateDomainsContent();
+                                    break;
+                                case 'reports':
+                                    content = ContentGenerator.generateReportsContent();
+                                    break;
+                                default:
+                                    content = '<div class="info-box"><p>Tab content not available</p></div>';
+                            }
+                        }
+                        
+                        tabContent.innerHTML = content;
+                        console.log('✅ Content generated for:', tabName);
+                        
+                    } catch (error) {
+                        console.error('❌ Error generating content for', tabName, ':', error);
+                        tabContent.innerHTML = `<div class="info-box"><p>Error generating content: ${error.message}</p></div>`;
+                    }
+                });
+            });
+            
+            // Initialize with overview tab
+            document.querySelector('[data-tab="overview"]').click();
+            
+            console.log('✅ Dashboard initialization complete!');
+        });
+    </script>
+</body>
+</html>
+
