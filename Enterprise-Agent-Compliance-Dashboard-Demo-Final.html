@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Agent Compliance Monitor</title>
+    <style>
+        /* Base styles */
+        :root {
+            --primary-color: #0078D4;
+            --primary-dark: #106EBE;
+            --primary-light: #DEECF9;
+            --success-color: #107C10;
+            --warning-color: #FFB900;
+            --error-color: #E81123;
+            --neutral-dark: #201F1E;
+            --neutral: #605E5C;
+            --neutral-light: #EDEBE9;
+            --neutral-lighter: #F3F2F1;
+            --white: #FFFFFF;
+            --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--neutral-dark);
+            background-color: var(--neutral-lighter);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .domain-selector {
+            display: flex;
+            align-items: center;
+        }
+
+        .domain-selector select {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 2px;
+            background-color: var(--white);
+            color: var(--neutral-dark);
+            font-family: var(--font-family);
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .last-updated {
+            color: var(--white);
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        .nav {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--neutral-light);
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .nav-tab {
+            padding: 12px 16px;
+            color: var(--neutral);
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* Content */
+        .content {
+            padding: 16px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--white);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--neutral-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .card-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--neutral-light);
+            background-color: var(--neutral-lighter);
+            font-size: 12px;
+            color: var(--neutral);
+        }
+
+        /* Metrics */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .metric {
+            background-color: var(--white);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--neutral);
+        }
+
+        /* Charts */
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .chart-container {
+            background-color: var(--white);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            height: 300px;
+            position: relative;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .table-filter {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .table-filter select,
+        .table-filter input {
+            padding: 8px 12px;
+            border: 1px solid var(--neutral-light);
+            border-radius: 2px;
+            background-color: var(--white);
+            color: var(--neutral-dark);
+            font-family: var(--font-family);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .table-filter input {
+            min-width: 200px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--neutral-light);
+        }
+
+        th {
+            background-color: var(--neutral-lighter);
+            font-weight: 600;
+            color: var(--neutral);
+            white-space: nowrap;
+        }
+
+        tr:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* Status indicators */
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background-color: var(--success-color);
+            color: var(--white);
+        }
+
+        .status-warning {
+            background-color: var(--warning-color);
+            color: var(--neutral-dark);
+        }
+
+        .status-error {
+            background-color: var(--error-color);
+            color: var(--white);
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--neutral-light);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .metrics {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .metric-value {
+                font-size: 24px;
+            }
+            
+            .metric-label {
+                font-size: 12px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .domain-selector {
+                margin-top: 12px;
+            }
+            
+            .last-updated {
+                margin-top: 8px;
+            }
+            
+            .nav-tab {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .table-filter {
+                flex-direction: column;
+            }
+        }
+
+        /* Chart tooltip */
+        .chart-tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: var(--white);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Print styles */
+        @media print {
+            .header, .nav {
+                position: static;
+            }
+            
+            .content-section {
+                display: block !important;
+                page-break-after: always;
+            }
+            
+            .card {
+                break-inside: avoid;
+            }
+            
+            .table-filter, .table-actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>Enterprise Agent Compliance Monitor</h1>
+        <div class="domain-selector">
+            <select id="domainSelect">
+                <option value="domain1.com">domain1.com</option>
+                <option value="domain2.com">domain2.com</option>
+            </select>
+        </div>
+        <div class="last-updated">
+            Last updated: <span id="lastUpdated">9/10/2025, 8:48:00 AM</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-tab active" data-tab="executiveSummary">Executive Summary</div>
+        <div class="nav-tab" data-tab="softwareInventory">Software Inventory</div>
+        <div class="nav-tab" data-tab="patchManagement">Patch Management</div>
+        <div class="nav-tab" data-tab="systemInformation">System Information</div>
+        <div class="nav-tab" data-tab="hardwareInventory">Hardware Inventory</div>
+        <div class="nav-tab" data-tab="domainControllers">Domain Controllers</div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+        <!-- Executive Summary -->
+        <section id="executiveSummary" class="content-section active">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Compliance Overview</h2>
+                </div>
+                <div class="card-body">
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value" id="overallCompliance">93%</div>
+                            <div class="metric-label">Critical agents properly installed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="serversMonitored">5</div>
+                            <div class="metric-label">Domain controllers</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="softwarePackages">38</div>
+                            <div class="metric-label">Total installed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="patchesInstalled">15</div>
+                            <div class="metric-label">Total installed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="recentInstalls">0</div>
+                            <div class="metric-label">Last 30 days</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="recentPatches">5</div>
+                            <div class="metric-label">Last 30 days</div>
+                        </div>
+                    </div>
+                    
+                    <div class="charts">
+                        <div class="chart-container">
+                            <div class="chart-title">Compliance Status</div>
+                            <svg width="100%" height="250">
+                                <!-- Donut chart -->
+                                <g transform="translate(200, 125)">
+                                    <!-- Green segment (93%) -->
+                                    <path d="M 0 -100 A 100 100 0 1 1 -98.48 -17.36 L -68.93 -12.15 A 70 70 0 1 0 0 -70 Z" fill="#107C10" />
+                                    <!-- Red segment (7%) -->
+                                    <path d="M -98.48 -17.36 A 100 100 0 0 1 0 -100 L 0 -70 A 70 70 0 0 0 -68.93 -12.15 Z" fill="#E81123" />
+                                    <!-- Center text -->
+                                    <text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="bold" fill="#0078D4">93%</text>
+                                    <text x="0" y="25" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#605E5C">Compliance</text>
+                                </g>
+                                <!-- Legend -->
+                                <g transform="translate(20, 220)">
+                                    <rect width="12" height="12" fill="#107C10" />
+                                    <text x="20" y="10" font-size="12">Compliant (93%)</text>
+                                </g>
+                                <g transform="translate(150, 220)">
+                                    <rect width="12" height="12" fill="#E81123" />
+                                    <text x="20" y="10" font-size="12">Non-Compliant (7%)</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Operating System Distribution</div>
+                            <svg width="100%" height="250">
+                                <!-- Axes -->
+                                <line x1="50" y1="200" x2="350" y2="200" stroke="#605E5C" stroke-width="1" />
+                                <line x1="50" y1="50" x2="50" y2="200" stroke="#605E5C" stroke-width="1" />
+                                
+                                <!-- Y-axis labels -->
+                                <text x="45" y="50" text-anchor="end" font-size="10">5</text>
+                                <text x="45" y="100" text-anchor="end" font-size="10">3</text>
+                                <text x="45" y="150" text-anchor="end" font-size="10">1</text>
+                                <text x="45" y="200" text-anchor="end" font-size="10">0</text>
+                                
+                                <!-- X-axis labels -->
+                                <text x="125" y="220" text-anchor="middle" font-size="10">Windows Server 2019</text>
+                                <text x="275" y="220" text-anchor="middle" font-size="10">Windows Server 2016</text>
+                                
+                                <!-- Bars -->
+                                <rect x="75" y="50" width="100" height="150" fill="#0078D4" />
+                                <rect x="225" y="100" width="100" height="100" fill="#2B88D8" />
+                                
+                                <!-- Values -->
+                                <text x="125" y="40" text-anchor="middle" font-size="10">3</text>
+                                <text x="275" y="90" text-anchor="middle" font-size="10">2</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Critical Agents Status</h2>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Agent</th>
+                                <th>Status</th>
+                                <th>Servers</th>
+                                <th>Version</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Netbackup Agent</td>
+                                <td><span class="status status-success">Healthy</span></td>
+                                <td>5/5</td>
+                                <td>8.3.0.1</td>
+                            </tr>
+                            <tr>
+                                <td>Qualys Cloud Agent</td>
+                                <td><span class="status status-warning">Warning</span></td>
+                                <td>3/5</td>
+                                <td>4.8.0.32 (2 outdated)</td>
+                            </tr>
+                            <tr>
+                                <td>Flexera Agent</td>
+                                <td><span class="status status-warning">Warning</span></td>
+                                <td>4/5</td>
+                                <td>2022 R1 (1 outdated)</td>
+                            </tr>
+                            <tr>
+                                <td>Microsoft Defender Antivirus</td>
+                                <td><span class="status status-success">Healthy</span></td>
+                                <td>5/5</td>
+                                <td>4.18.2203.5</td>
+                            </tr>
+                            <tr>
+                                <td>Microsoft Defender for Identity</td>
+                                <td><span class="status status-success">Healthy</span></td>
+                                <td>5/5</td>
+                                <td>2.186</td>
+                            </tr>
+                            <tr>
+                                <td>Tripwire Enterprise Agent</td>
+                                <td><span class="status status-success">Healthy</span></td>
+                                <td>5/5</td>
+                                <td>8.9.1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Activity</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Server</th>
+                                    <th>Activity</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Installed KB5030216 (Security Update)</td>
+                                    <td>2025-08-15</td>
+                                </tr>
+                                <tr>
+                                    <td>DC2</td>
+                                    <td>Installed KB5030216 (Security Update)</td>
+                                    <td>2025-08-15</td>
+                                </tr>
+                                <tr>
+                                    <td>DC3</td>
+                                    <td>Installed KB5030216 (Security Update)</td>
+                                    <td>2025-08-15</td>
+                                </tr>
+                                <tr>
+                                    <td>DC4</td>
+                                    <td>Installed KB5030214 (Security Update)</td>
+                                    <td>2025-08-15</td>
+                                </tr>
+                                <tr>
+                                    <td>DC5</td>
+                                    <td>Installed KB5030214 (Security Update)</td>
+                                    <td>2025-08-15</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Software Inventory -->
+        <section id="softwareInventory" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Software Inventory</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-header">
+                        <div class="table-title">Software Packages</div>
+                        <div class="table-filter">
+                            <select id="softwareServerFilter">
+                                <option value="">All Servers</option>
+                                <option value="DC1">DC1</option>
+                                <option value="DC2">DC2</option>
+                                <option value="DC3">DC3</option>
+                                <option value="DC4">DC4</option>
+                                <option value="DC5">DC5</option>
+                            </select>
+                            <select id="softwarePublisherFilter">
+                                <option value="">All Publishers</option>
+                                <option value="Microsoft Corporation">Microsoft Corporation</option>
+                                <option value="Veritas Technologies">Veritas Technologies</option>
+                                <option value="Qualys Inc.">Qualys Inc.</option>
+                                <option value="Flexera Software">Flexera Software</option>
+                                <option value="Tripwire Inc.">Tripwire Inc.</option>
+                            </select>
+                            <select id="softwareCriticalFilter">
+                                <option value="">All Software</option>
+                                <option value="critical">Critical Agents Only</option>
+                            </select>
+                            <input type="text" id="softwareSearch" placeholder="Search software...">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Server</th>
+                                    <th>Software Name</th>
+                                    <th>Version</th>
+                                    <th>Publisher</th>
+                                    <th>Install Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Netbackup Agent</td>
+                                    <td>8.3.0.1</td>
+                                    <td>Veritas Technologies</td>
+                                    <td>2024-11-15</td>
+                                    <td><span class="status status-success">Critical</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Qualys Cloud Agent</td>
+                                    <td>4.8.0.32</td>
+                                    <td>Qualys Inc.</td>
+                                    <td>2025-01-20</td>
+                                    <td><span class="status status-success">Critical</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Flexera Agent</td>
+                                    <td>2022 R1</td>
+                                    <td>Flexera Software</td>
+                                    <td>2024-12-05</td>
+                                    <td><span class="status status-success">Critical</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Microsoft Defender Antivirus</td>
+                                    <td>4.18.2203.5</td>
+                                    <td>Microsoft Corporation</td>
+                                    <td>2025-02-10</td>
+                                    <td><span class="status status-success">Critical</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Microsoft Defender for Identity</td>
+                                    <td>2.186</td>
+                                    <td>Microsoft Corporation</td>
+                                    <td>2025-03-15</td>
+                                    <td><span class="status status-success">Critical</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Tripwire Enterprise Agent</td>
+                                    <td>8.9.1</td>
+                                    <td>Tripwire Inc.</td>
+                                    <td>2025-01-30</td>
+                                    <td><span class="status status-success">Critical</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC4</td>
+                                    <td>Qualys Cloud Agent</td>
+                                    <td>4.7.1.28</td>
+                                    <td>Qualys Inc.</td>
+                                    <td>2024-09-22</td>
+                                    <td><span class="status status-warning">Warning</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC5</td>
+                                    <td>Flexera Agent</td>
+                                    <td>2021 R2</td>
+                                    <td>Flexera Software</td>
+                                    <td>2024-08-09</td>
+                                    <td><span class="status status-warning">Warning</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Patch Management -->
+        <section id="patchManagement" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Patch Inventory</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-header">
+                        <div class="table-title">Patches and Updates</div>
+                        <div class="table-filter">
+                            <select id="patchServerFilter">
+                                <option value="">All Servers</option>
+                                <option value="DC1">DC1</option>
+                                <option value="DC2">DC2</option>
+                                <option value="DC3">DC3</option>
+                                <option value="DC4">DC4</option>
+                                <option value="DC5">DC5</option>
+                            </select>
+                            <select id="patchTypeFilter">
+                                <option value="">All Patch Types</option>
+                                <option value="Security Update">Security Update</option>
+                                <option value="Feature Update">Feature Update</option>
+                            </select>
+                            <input type="text" id="patchSearch" placeholder="Search patches...">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Server</th>
+                                    <th>Patch ID</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Install Date</th>
+                                    <th>Installed By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>KB5030216</td>
+                                    <td>2025-08 Cumulative Update for Windows Server 2019</td>
+                                    <td>Security Update</td>
+                                    <td>2025-08-15</td>
+                                    <td>SYSTEM</td>
+                                </tr>
+                                <tr>
+                                    <td>DC2</td>
+                                    <td>KB5030216</td>
+                                    <td>2025-08 Cumulative Update for Windows Server 2019</td>
+                                    <td>Security Update</td>
+                                    <td>2025-08-15</td>
+                                    <td>SYSTEM</td>
+                                </tr>
+                                <tr>
+                                    <td>DC3</td>
+                                    <td>KB5030216</td>
+                                    <td>2025-08 Cumulative Update for Windows Server 2019</td>
+                                    <td>Security Update</td>
+                                    <td>2025-08-15</td>
+                                    <td>SYSTEM</td>
+                                </tr>
+                                <tr>
+                                    <td>DC4</td>
+                                    <td>KB5030214</td>
+                                    <td>2025-08 Cumulative Update for Windows Server 2016</td>
+                                    <td>Security Update</td>
+                                    <td>2025-08-15</td>
+                                    <td>SYSTEM</td>
+                                </tr>
+                                <tr>
+                                    <td>DC5</td>
+                                    <td>KB5030214</td>
+                                    <td>2025-08 Cumulative Update for Windows Server 2016</td>
+                                    <td>Security Update</td>
+                                    <td>2025-08-15</td>
+                                    <td>SYSTEM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Information -->
+        <section id="systemInformation" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Operating System Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="charts">
+                        <div class="chart-container">
+                            <div class="chart-title">Memory Usage by Server</div>
+                            <svg width="100%" height="250">
+                                <!-- Axes -->
+                                <line x1="50" y1="200" x2="350" y2="200" stroke="#605E5C" stroke-width="1" />
+                                <line x1="50" y1="50" x2="50" y2="200" stroke="#605E5C" stroke-width="1" />
+                                
+                                <!-- Y-axis labels -->
+                                <text x="45" y="50" text-anchor="end" font-size="10">32</text>
+                                <text x="45" y="100" text-anchor="end" font-size="10">24</text>
+                                <text x="45" y="150" text-anchor="end" font-size="10">16</text>
+                                <text x="45" y="200" text-anchor="end" font-size="10">0</text>
+                                
+                                <!-- X-axis labels -->
+                                <text x="70" y="220" text-anchor="middle" font-size="10">DC1</text>
+                                <text x="130" y="220" text-anchor="middle" font-size="10">DC2</text>
+                                <text x="190" y="220" text-anchor="middle" font-size="10">DC3</text>
+                                <text x="250" y="220" text-anchor="middle" font-size="10">DC4</text>
+                                <text x="310" y="220" text-anchor="middle" font-size="10">DC5</text>
+                                
+                                <!-- Bars -->
+                                <rect x="60" y="50" width="20" height="150" fill="#0078D4" />
+                                <rect x="120" y="50" width="20" height="150" fill="#0078D4" />
+                                <rect x="180" y="150" width="20" height="50" fill="#0078D4" />
+                                <rect x="240" y="150" width="20" height="50" fill="#0078D4" />
+                                <rect x="300" y="150" width="20" height="50" fill="#0078D4" />
+                                
+                                <!-- Values -->
+                                <text x="70" y="40" text-anchor="middle" font-size="10">32</text>
+                                <text x="130" y="40" text-anchor="middle" font-size="10">32</text>
+                                <text x="190" y="140" text-anchor="middle" font-size="10">16</text>
+                                <text x="250" y="140" text-anchor="middle" font-size="10">16</text>
+                                <text x="310" y="140" text-anchor="middle" font-size="10">16</text>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="table-header">
+                        <div class="table-title">System Details</div>
+                        <div class="table-filter">
+                            <select id="systemServerFilter">
+                                <option value="">All Servers</option>
+                                <option value="DC1">DC1</option>
+                                <option value="DC2">DC2</option>
+                                <option value="DC3">DC3</option>
+                                <option value="DC4">DC4</option>
+                                <option value="DC5">DC5</option>
+                            </select>
+                            <input type="text" id="systemSearch" placeholder="Search systems...">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Server</th>
+                                    <th>OS Name</th>
+                                    <th>OS Version</th>
+                                    <th>Memory (GB)</th>
+                                    <th>Uptime</th>
+                                    <th>Last Boot</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Windows Server 2019 Standard</td>
+                                    <td>10.0.17763.4851</td>
+                                    <td>32</td>
+                                    <td>15 days, 7 hours</td>
+                                    <td>2025-08-26 01:48:22</td>
+                                </tr>
+                                <tr>
+                                    <td>DC2</td>
+                                    <td>Windows Server 2019 Standard</td>
+                                    <td>10.0.17763.4851</td>
+                                    <td>32</td>
+                                    <td>15 days, 7 hours</td>
+                                    <td>2025-08-26 01:50:15</td>
+                                </tr>
+                                <tr>
+                                    <td>DC3</td>
+                                    <td>Windows Server 2019 Standard</td>
+                                    <td>10.0.17763.4851</td>
+                                    <td>16</td>
+                                    <td>15 days, 6 hours</td>
+                                    <td>2025-08-26 02:12:44</td>
+                                </tr>
+                                <tr>
+                                    <td>DC4</td>
+                                    <td>Windows Server 2016 Standard</td>
+                                    <td>10.0.14393.5850</td>
+                                    <td>16</td>
+                                    <td>15 days, 6 hours</td>
+                                    <td>2025-08-26 02:30:18</td>
+                                </tr>
+                                <tr>
+                                    <td>DC5</td>
+                                    <td>Windows Server 2016 Standard</td>
+                                    <td>10.0.14393.5850</td>
+                                    <td>16</td>
+                                    <td>15 days, 5 hours</td>
+                                    <td>2025-08-26 03:15:52</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hardware Inventory -->
+        <section id="hardwareInventory" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Hardware Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="charts">
+                        <div class="chart-container">
+                            <div class="chart-title">Hardware Manufacturers</div>
+                            <svg width="100%" height="250">
+                                <!-- Donut chart -->
+                                <g transform="translate(200, 125)">
+                                    <!-- Dell segment (60%) -->
+                                    <path d="M 0 -100 A 100 100 0 0 1 86.6 -50 L 60.62 -35 A 70 70 0 0 0 0 -70 Z" fill="#0078D4" />
+                                    <!-- HP segment (40%) -->
+                                    <path d="M 86.6 -50 A 100 100 0 0 1 0 100 L 0 70 A 70 70 0 0 0 60.62 -35 Z" fill="#2B88D8" />
+                                    <path d="M 0 100 A 100 100 0 0 1 -100 0 L -70 0 A 70 70 0 0 0 0 70 Z" fill="#2B88D8" />
+                                    <path d="M -100 0 A 100 100 0 0 1 0 -100 L 0 -70 A 70 70 0 0 0 -70 0 Z" fill="#2B88D8" />
+                                </g>
+                                <!-- Legend -->
+                                <g transform="translate(20, 220)">
+                                    <rect width="12" height="12" fill="#0078D4" />
+                                    <text x="20" y="10" font-size="12">Dell Inc. (60%)</text>
+                                </g>
+                                <g transform="translate(150, 220)">
+                                    <rect width="12" height="12" fill="#2B88D8" />
+                                    <text x="20" y="10" font-size="12">HP (40%)</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Processor Types</div>
+                            <svg width="100%" height="250">
+                                <!-- Axes -->
+                                <line x1="50" y1="200" x2="350" y2="200" stroke="#605E5C" stroke-width="1" />
+                                <line x1="50" y1="50" x2="50" y2="200" stroke="#605E5C" stroke-width="1" />
+                                
+                                <!-- Y-axis labels -->
+                                <text x="45" y="50" text-anchor="end" font-size="10">3</text>
+                                <text x="45" y="125" text-anchor="end" font-size="10">2</text>
+                                <text x="45" y="200" text-anchor="end" font-size="10">0</text>
+                                
+                                <!-- X-axis labels -->
+                                <text x="125" y="220" text-anchor="middle" font-size="10" transform="rotate(15, 125, 220)">Intel Xeon Gold 6248</text>
+                                <text x="275" y="220" text-anchor="middle" font-size="10" transform="rotate(15, 275, 220)">Intel Xeon Silver 4110</text>
+                                
+                                <!-- Bars -->
+                                <rect x="75" y="50" width="100" height="150" fill="#0078D4" />
+                                <rect x="225" y="125" width="100" height="75" fill="#2B88D8" />
+                                
+                                <!-- Values -->
+                                <text x="125" y="40" text-anchor="middle" font-size="10">3</text>
+                                <text x="275" y="115" text-anchor="middle" font-size="10">2</text>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="table-header">
+                        <div class="table-title">Hardware Details</div>
+                        <div class="table-filter">
+                            <select id="hardwareServerFilter">
+                                <option value="">All Servers</option>
+                                <option value="DC1">DC1</option>
+                                <option value="DC2">DC2</option>
+                                <option value="DC3">DC3</option>
+                                <option value="DC4">DC4</option>
+                                <option value="DC5">DC5</option>
+                            </select>
+                            <select id="hardwareManufacturerFilter">
+                                <option value="">All Manufacturers</option>
+                                <option value="Dell Inc.">Dell Inc.</option>
+                                <option value="HP">HP</option>
+                            </select>
+                            <input type="text" id="hardwareSearch" placeholder="Search hardware...">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Server</th>
+                                    <th>Manufacturer</th>
+                                    <th>Model</th>
+                                    <th>Processor</th>
+                                    <th>Cores</th>
+                                    <th>Memory</th>
+                                    <th>Disks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>Dell Inc.</td>
+                                    <td>PowerEdge R740</td>
+                                    <td>Intel Xeon Gold 6248 @ 2.50GHz</td>
+                                    <td>20</td>
+                                    <td>32 GB DDR4</td>
+                                    <td>C: 500GB (65%), D: 1TB (45%)</td>
+                                </tr>
+                                <tr>
+                                    <td>DC2</td>
+                                    <td>Dell Inc.</td>
+                                    <td>PowerEdge R740</td>
+                                    <td>Intel Xeon Gold 6248 @ 2.50GHz</td>
+                                    <td>20</td>
+                                    <td>32 GB DDR4</td>
+                                    <td>C: 500GB (62%), D: 1TB (48%)</td>
+                                </tr>
+                                <tr>
+                                    <td>DC3</td>
+                                    <td>Dell Inc.</td>
+                                    <td>PowerEdge R640</td>
+                                    <td>Intel Xeon Silver 4210 @ 2.20GHz</td>
+                                    <td>10</td>
+                                    <td>16 GB DDR4</td>
+                                    <td>C: 300GB (58%), D: 500GB (37%)</td>
+                                </tr>
+                                <tr>
+                                    <td>DC4</td>
+                                    <td>HP</td>
+                                    <td>ProLiant DL360 Gen10</td>
+                                    <td>Intel Xeon Silver 4110 @ 2.10GHz</td>
+                                    <td>8</td>
+                                    <td>16 GB DDR4</td>
+                                    <td>C: 300GB (61%), D: 500GB (42%)</td>
+                                </tr>
+                                <tr>
+                                    <td>DC5</td>
+                                    <td>HP</td>
+                                    <td>ProLiant DL360 Gen10</td>
+                                    <td>Intel Xeon Silver 4110 @ 2.10GHz</td>
+                                    <td>8</td>
+                                    <td>16 GB DDR4</td>
+                                    <td>C: 300GB (59%), D: 500GB (40%)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Domain Controllers -->
+        <section id="domainControllers" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Domain Controllers</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-header">
+                        <div class="table-title">Domain Controller Details</div>
+                        <div class="table-filter">
+                            <select id="dcSiteFilter">
+                                <option value="">All Sites</option>
+                                <option value="HQ-London">HQ-London</option>
+                                <option value="DR-Manchester">DR-Manchester</option>
+                                <option value="Branch-Glasgow">Branch-Glasgow</option>
+                                <option value="Branch-Cardiff">Branch-Cardiff</option>
+                            </select>
+                            <select id="dcRoleFilter">
+                                <option value="">All Roles</option>
+                                <option value="gc">Global Catalog</option>
+                                <option value="rodc">Read-Only DC</option>
+                            </select>
+                            <input type="text" id="dcSearch" placeholder="Search domain controllers...">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Server Name</th>
+                                    <th>FQDN</th>
+                                    <th>IP Address</th>
+                                    <th>Site</th>
+                                    <th>OS</th>
+                                    <th>Roles</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DC1</td>
+                                    <td>dc1.domain1.com</td>
+                                    <td>10.1.1.10</td>
+                                    <td>HQ-London</td>
+                                    <td>Windows Server 2019</td>
+                                    <td>PDC, GC</td>
+                                    <td><span class="status status-success">Online</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC2</td>
+                                    <td>dc2.domain1.com</td>
+                                    <td>10.1.1.11</td>
+                                    <td>HQ-London</td>
+                                    <td>Windows Server 2019</td>
+                                    <td>GC</td>
+                                    <td><span class="status status-success">Online</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC3</td>
+                                    <td>dc3.domain1.com</td>
+                                    <td>10.1.2.10</td>
+                                    <td>DR-Manchester</td>
+                                    <td>Windows Server 2019</td>
+                                    <td>GC</td>
+                                    <td><span class="status status-success">Online</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC4</td>
+                                    <td>dc4.domain1.com</td>
+                                    <td>10.1.3.10</td>
+                                    <td>Branch-Glasgow</td>
+                                    <td>Windows Server 2016</td>
+                                    <td>RODC</td>
+                                    <td><span class="status status-success">Online</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DC5</td>
+                                    <td>dc5.domain1.com</td>
+                                    <td>10.1.4.10</td>
+                                    <td>Branch-Cardiff</td>
+                                    <td>Windows Server 2016</td>
+                                    <td>RODC</td>
+                                    <td><span class="status status-success">Online</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tab navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const navTabs = document.querySelectorAll('.nav-tab');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update active content section
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === tabId) {
+                            section.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Domain selection change
+            const domainSelect = document.getElementById('domainSelect');
+            if (domainSelect) {
+                domainSelect.addEventListener('change', () => {
+                    const selectedDomain = domainSelect.value;
+                    // In a real implementation, this would load data for the selected domain
+                    // For this demo, we'll just update the last updated text
+                    document.getElementById('lastUpdated').textContent = 
+                        selectedDomain === 'domain1.com' ? '9/10/2025, 8:48:00 AM' : '9/10/2025, 8:30:00 AM';
+                });
+            }
+            
+            // Set up filter event listeners
+            setupFilterEventListeners();
+        });
+        
+        // Set up filter event listeners
+        function setupFilterEventListeners() {
+            // Software filters
+            const softwareServerFilter = document.getElementById('softwareServerFilter');
+            const softwarePublisherFilter = document.getElementById('softwarePublisherFilter');
+            const softwareCriticalFilter = document.getElementById('softwareCriticalFilter');
+            const softwareSearch = document.getElementById('softwareSearch');
+            
+            if (softwareServerFilter) {
+                softwareServerFilter.addEventListener('change', filterTable);
+            }
+            
+            if (softwarePublisherFilter) {
+                softwarePublisherFilter.addEventListener('change', filterTable);
+            }
+            
+            if (softwareCriticalFilter) {
+                softwareCriticalFilter.addEventListener('change', filterTable);
+            }
+            
+            if (softwareSearch) {
+                softwareSearch.addEventListener('input', filterTable);
+            }
+            
+            // Other filters
+            const filterInputs = document.querySelectorAll('.table-filter select, .table-filter input');
+            filterInputs.forEach(input => {
+                input.addEventListener('change', filterTable);
+                input.addEventListener('input', filterTable);
+            });
+        }
+        
+        // Generic table filter function
+        function filterTable(event) {
+            const filterElement = event.target;
+            const tableContainer = filterElement.closest('.card-body');
+            const table = tableContainer.querySelector('table');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            const filterValue = filterElement.value.toLowerCase();
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const shouldShow = text.includes(filterValue) || filterValue === '';
+                
+                row.style.display = shouldShow ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
+
