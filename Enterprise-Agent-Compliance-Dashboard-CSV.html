@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Agent Compliance Monitor</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Header Styles */
+        .header {
+            background-color: #0078d4;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .domain-selector {
+            margin-right: 1rem;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+        }
+        
+        /* Navigation Styles */
+        .nav {
+            background-color: white;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        
+        .nav-tab.active {
+            border-bottom: 3px solid #0078d4;
+            color: #0078d4;
+            font-weight: 500;
+        }
+        
+        /* Content Styles */
+        .content {
+            padding: 1rem;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Card Styles */
+        .card {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-card {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #0078d4;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* Chart Containers */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            height: 300px;
+        }
+        
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f5f5f5;
+            font-weight: 500;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        /* Status Indicators */
+        .status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-green {
+            background-color: #107c10;
+        }
+        
+        .status-yellow {
+            background-color: #ffb900;
+        }
+        
+        .status-red {
+            background-color: #d13438;
+        }
+        
+        /* Loading Indicator */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0078d4;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Error Message */
+        .error-message {
+            background-color: #fde7e9;
+            color: #d13438;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Donut Chart Styles */
+        .donut-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+        
+        .donut-chart svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .donut-chart .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .donut-chart .percentage {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #0078d4;
+        }
+        
+        .donut-chart .label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* Bar Chart Styles */
+        .bar-chart {
+            height: 250px;
+            position: relative;
+        }
+        
+        .bar-chart .bar {
+            position: absolute;
+            bottom: 30px;
+            width: 40px;
+            background-color: #0078d4;
+            transition: height 0.5s ease;
+        }
+        
+        .bar-chart .x-axis {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            display: flex;
+        }
+        
+        .bar-chart .x-label {
+            flex: 1;
+            text-align: center;
+            font-size: 0.8rem;
+            padding-top: 5px;
+        }
+        
+        .bar-chart .y-axis {
+            position: absolute;
+            top: 0;
+            bottom: 30px;
+            left: 0;
+            width: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Enterprise Agent Compliance Monitor</h1>
+        <div class="header-right">
+            <select id="domainSelector" class="domain-selector">
+                <option value="">Loading domains...</option>
+            </select>
+            <span id="lastUpdated">Last updated: --</span>
+        </div>
+    </div>
+    
+    <div class="nav">
+        <ul class="nav-tabs">
+            <li class="nav-tab active" data-tab="executive-summary">Executive Summary</li>
+            <li class="nav-tab" data-tab="software-inventory">Software Inventory</li>
+            <li class="nav-tab" data-tab="patch-management">Patch Management</li>
+            <li class="nav-tab" data-tab="system-information">System Information</li>
+            <li class="nav-tab" data-tab="hardware-inventory">Hardware Inventory</li>
+            <li class="nav-tab" data-tab="domain-controllers">Domain Controllers</li>
+        </ul>
+    </div>
+    
+    <div class="content">
+        <!-- Executive Summary Tab -->
+        <div id="executive-summary" class="tab-content active">
+            <div class="card">
+                <h2 class="card-title">Compliance Overview</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div id="criticalAgentsMetric" class="metric-value">--</div>
+                        <div class="metric-label">Critical agents properly installed</div>
+                    </div>
+                    <div class="metric-card">
+                        <div id="domainControllersMetric" class="metric-value">--</div>
+                        <div class="metric-label">Domain controllers</div>
+                    </div>
+                    <div class="metric-card">
+                        <div id="softwarePackagesMetric" class="metric-value">--</div>
+                        <div class="metric-label">Total installed</div>
+                    </div>
+                    <div class="metric-card">
+                        <div id="patchesMetric" class="metric-value">--</div>
+                        <div class="metric-label">Total installed</div>
+                    </div>
+                    <div class="metric-card">
+                        <div id="recentInstallsMetric" class="metric-value">--</div>
+                        <div class="metric-label">Last 30 days</div>
+                    </div>
+                    <div class="metric-card">
+                        <div id="recentPatchesMetric" class="metric-value">--</div>
+                        <div class="metric-label">Last 30 days</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-grid">
+                <div class="card">
+                    <h2 class="card-title">Compliance Status</h2>
+                    <div id="complianceChart" class="donut-chart">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#e0e0e0" stroke-width="10"></circle>
+                            <circle id="complianceCircle" cx="50" cy="50" r="40" fill="transparent" stroke="#107c10" stroke-width="10" stroke-dasharray="0 251.2" transform="rotate(-90 50 50)"></circle>
+                        </svg>
+                        <div class="center-text">
+                            <div id="compliancePercentage" class="percentage">--</div>
+                            <div class="label">Compliance</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">Operating System Distribution</h2>
+                    <div id="osDistributionChart" class="bar-chart">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Critical Agents Status</h2>
+                <div class="table-container">
+                    <table id="criticalAgentsTable">
+                        <thead>
+                            <tr>
+                                <th>Agent</th>
+                                <th>Status</th>
+                                <th>Installed</th>
+                                <th>Missing</th>
+                                <th>Compliance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                            <tr>
+                                <td colspan="5">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Software Inventory Tab -->
+        <div id="software-inventory" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Software Inventory</h2>
+                <div class="table-container">
+                    <table id="softwareInventoryTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Version</th>
+                                <th>Publisher</th>
+                                <th>Install Date</th>
+                                <th>Servers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                            <tr>
+                                <td colspan="5">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Patch Management Tab -->
+        <div id="patch-management" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Patch Inventory</h2>
+                <div class="table-container">
+                    <table id="patchInventoryTable">
+                        <thead>
+                            <tr>
+                                <th>KB/Hotfix ID</th>
+                                <th>Description</th>
+                                <th>Install Date</th>
+                                <th>Installed By</th>
+                                <th>Servers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                            <tr>
+                                <td colspan="5">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Information Tab -->
+        <div id="system-information" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">System Information</h2>
+                <div class="table-container">
+                    <table id="systemInformationTable">
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>OS Version</th>
+                                <th>Install Date</th>
+                                <th>Last Boot</th>
+                                <th>Uptime (days)</th>
+                                <th>Memory Usage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                            <tr>
+                                <td colspan="6">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hardware Inventory Tab -->
+        <div id="hardware-inventory" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Hardware Inventory</h2>
+                <div class="table-container">
+                    <table id="hardwareInventoryTable">
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Manufacturer</th>
+                                <th>Model</th>
+                                <th>Processor</th>
+                                <th>Memory (GB)</th>
+                                <th>Disk Space (GB)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                            <tr>
+                                <td colspan="6">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Domain Controllers Tab -->
+        <div id="domain-controllers" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Domain Controllers</h2>
+                <div class="table-container">
+                    <table id="domainControllersTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>FQDN</th>
+                                <th>IP Address</th>
+                                <th>Site</th>
+                                <th>OS Version</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                            <tr>
+                                <td colspan="6">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentDomain = '';
+        let availableDomains = [];
+        let domainData = {};
+        
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up tab navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab content
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    // Show the corresponding tab content
+                    document.getElementById(this.dataset.tab).classList.add('active');
+                });
+            });
+            
+            // Set up domain selector
+            const domainSelector = document.getElementById('domainSelector');
+            domainSelector.addEventListener('change', function() {
+                currentDomain = this.value;
+                loadDomainData(currentDomain);
+            });
+            
+            // Discover available domains
+            discoverDomains();
+        });
+        
+        // Function to discover available domains
+        function discoverDomains() {
+            // Look for domain folders in the parent directory
+            const baseUrl = '.'; // Relative to the current HTML file
+            
+            // For demonstration, we'll use a fetch request to try to access a known file
+            // that would indicate a domain folder
+            fetch(baseUrl + '/Data')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Data directory not found');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // This is a simple way to extract folder names from directory listing
+                    // In a real environment, you might need to adjust this based on server configuration
+                    const domainRegex = /<a[^>]*>([^<]+)<\/a>/g;
+                    let match;
+                    const domains = [];
+                    
+                    while ((match = domainRegex.exec(html)) !== null) {
+                        const folderName = match[1].trim();
+                        if (folderName !== '.' && folderName !== '..' && !folderName.includes('.')) {
+                            domains.push(folderName);
+                        }
+                    }
+                    
+                    if (domains.length > 0) {
+                        availableDomains = domains;
+                        populateDomainSelector(domains);
+                    } else {
+                        // Fallback to looking for specific domain folders
+                        checkSpecificDomains();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error discovering domains:', error);
+                    checkSpecificDomains();
+                });
+        }
+        
+        // Function to check for specific domain folders
+        function checkSpecificDomains() {
+            // Common domain names to check
+            const domainsToCheck = ['RBSPOC01.net', 'domain1.com', 'domain2.com'];
+            const baseUrl = '.';
+            const foundDomains = [];
+            
+            // Check each domain
+            Promise.all(domainsToCheck.map(domain => 
+                fetch(`${baseUrl}/Data/${domain}/Summary.csv`)
+                    .then(response => {
+                        if (response.ok) {
+                            foundDomains.push(domain);
+                        }
+                        return response;
+                    })
+                    .catch(() => {})
+            ))
+            .then(() => {
+                if (foundDomains.length > 0) {
+                    availableDomains = foundDomains;
+                    populateDomainSelector(foundDomains);
+                } else {
+                    // No domains found, show error
+                    showError('No domain data found. Please ensure CSV files are in the correct location.');
+                }
+            });
+        }
+        
+        // Function to populate domain selector
+        function populateDomainSelector(domains) {
+            const domainSelector = document.getElementById('domainSelector');
+            domainSelector.innerHTML = '';
+            
+            domains.forEach(domain => {
+                const option = document.createElement('option');
+                option.value = domain;
+                option.textContent = domain;
+                domainSelector.appendChild(option);
+            });
+            
+            // Select the first domain by default
+            if (domains.length > 0) {
+                currentDomain = domains[0];
+                domainSelector.value = currentDomain;
+                loadDomainData(currentDomain);
+            }
+        }
+        
+        // Function to load domain data
+        function loadDomainData(domain) {
+            // Clear previous data
+            clearDashboardData();
+            
+            // Show loading indicators
+            showLoading();
+            
+            // Load all CSV files for the domain
+            Promise.all([
+                loadCSV(`./Data/${domain}/Summary.csv`),
+                loadCSV(`./Data/${domain}/DomainControllers.csv`),
+                loadCSV(`./Data/${domain}/SoftwareInventory.csv`),
+                loadCSV(`./Data/${domain}/PatchInventory.csv`),
+                loadCSV(`./Data/${domain}/SystemInfo.csv`),
+                loadCSV(`./Data/${domain}/HardwareInfo.csv`),
+                loadCSV(`./Data/${domain}/CriticalAgents.csv`)
+            ])
+            .then(([summary, domainControllers, software, patches, systemInfo, hardware, criticalAgents]) => {
+                // Store the data
+                domainData = {
+                    summary,
+                    domainControllers,
+                    software,
+                    patches,
+                    systemInfo,
+                    hardware,
+                    criticalAgents
+                };
+                
+                // Update the dashboard
+                updateDashboard();
+                
+                // Hide loading indicators
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Error loading domain data:', error);
+                showError('Error loading domain data. Please check that all CSV files exist.');
+                hideLoading();
+            });
+        }
+        
+        // Function to load CSV file
+        function loadCSV(url) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${url}`);
+                    }
+                    return response.text();
+                })
+                .then(csvText => {
+                    return parseCSV(csvText);
+                });
+        }
+        
+        // Function to parse CSV text
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(header => header.trim());
+            
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line) {
+                    const values = line.split(',').map(value => value.trim());
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header] = values[index] || '';
+                    });
+                    data.push(row);
+                }
+            }
+            
+            return data;
+        }
+        
+        // Function to clear dashboard data
+        function clearDashboardData() {
+            // Clear metrics
+            document.getElementById('criticalAgentsMetric').textContent = '--';
+            document.getElementById('domainControllersMetric').textContent = '--';
+            document.getElementById('softwarePackagesMetric').textContent = '--';
+            document.getElementById('patchesMetric').textContent = '--';
+            document.getElementById('recentInstallsMetric').textContent = '--';
+            document.getElementById('recentPatchesMetric').textContent = '--';
+            
+            // Clear charts
+            document.getElementById('compliancePercentage').textContent = '--';
+            document.getElementById('complianceCircle').setAttribute('stroke-dasharray', '0 251.2');
+            document.getElementById('osDistributionChart').innerHTML = '';
+            
+            // Clear tables
+            document.getElementById('criticalAgentsTable').querySelector('tbody').innerHTML = '<tr><td colspan="5">Loading data...</td></tr>';
+            document.getElementById('softwareInventoryTable').querySelector('tbody').innerHTML = '<tr><td colspan="5">Loading data...</td></tr>';
+            document.getElementById('patchInventoryTable').querySelector('tbody').innerHTML = '<tr><td colspan="5">Loading data...</td></tr>';
+            document.getElementById('systemInformationTable').querySelector('tbody').innerHTML = '<tr><td colspan="6">Loading data...</td></tr>';
+            document.getElementById('hardwareInventoryTable').querySelector('tbody').innerHTML = '<tr><td colspan="6">Loading data...</td></tr>';
+            document.getElementById('domainControllersTable').querySelector('tbody').innerHTML = '<tr><td colspan="6">Loading data...</td></tr>';
+        }
+        
+        // Function to show loading indicators
+        function showLoading() {
+            // Add loading class to content
+            document.querySelector('.content').classList.add('loading');
+        }
+        
+        // Function to hide loading indicators
+        function hideLoading() {
+            // Remove loading class from content
+            document.querySelector('.content').classList.remove('loading');
+        }
+        
+        // Function to show error message
+        function showError(message) {
+            // Create error message element
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            errorElement.textContent = message;
+            
+            // Add to content
+            document.querySelector('.content').prepend(errorElement);
+        }
+        
+        // Function to update the dashboard with data
+        function updateDashboard() {
+            // Update last updated timestamp
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = `Last updated: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+            
+            // Update metrics
+            updateMetrics();
+            
+            // Update charts
+            updateCharts();
+            
+            // Update tables
+            updateTables();
+        }
+        
+        // Function to update metrics
+        function updateMetrics() {
+            // Get summary data
+            const summary = domainData.summary[0] || {};
+            
+            // Update metrics
+            document.getElementById('criticalAgentsMetric').textContent = summary.CriticalAgentCompliance || '0%';
+            document.getElementById('domainControllersMetric').textContent = summary.TotalServers || '0';
+            document.getElementById('softwarePackagesMetric').textContent = summary.TotalSoftwarePackages || '0';
+            document.getElementById('patchesMetric').textContent = summary.TotalPatches || '0';
+            document.getElementById('recentInstallsMetric').textContent = summary.RecentInstalls || '0';
+            document.getElementById('recentPatchesMetric').textContent = summary.RecentPatches || '0';
+        }
+        
+        // Function to update charts
+        function updateCharts() {
+            // Get summary data
+            const summary = domainData.summary[0] || {};
+            
+            // Update compliance donut chart
+            const compliancePercentage = parseInt(summary.CriticalAgentCompliance || '0');
+            document.getElementById('compliancePercentage').textContent = `${compliancePercentage}%`;
+            
+            // Calculate stroke-dasharray for the donut chart
+            const circumference = 2 * Math.PI * 40; // 2πr
+            const dashArray = (compliancePercentage / 100) * circumference;
+            document.getElementById('complianceCircle').setAttribute('stroke-dasharray', `${dashArray} ${circumference}`);
+            
+            // Set color based on compliance percentage
+            let color = '#107c10'; // Green
+            if (compliancePercentage < 70) {
+                color = '#d13438'; // Red
+            } else if (compliancePercentage < 90) {
+                color = '#ffb900'; // Yellow
+            }
+            document.getElementById('complianceCircle').setAttribute('stroke', color);
+            
+            // Update OS distribution chart
+            updateOSDistributionChart();
+        }
+        
+        // Function to update OS distribution chart
+        function updateOSDistributionChart() {
+            const chartContainer = document.getElementById('osDistributionChart');
+            chartContainer.innerHTML = '';
+            
+            // Get system info data
+            const systemInfo = domainData.systemInfo || [];
+            
+            // Count OS versions
+            const osVersions = {};
+            systemInfo.forEach(server => {
+                const osVersion = server.OSVersion || 'Unknown';
+                osVersions[osVersion] = (osVersions[osVersion] || 0) + 1;
+            });
+            
+            // Convert to array for sorting
+            const osData = Object.entries(osVersions).map(([name, count]) => ({ name, count }));
+            osData.sort((a, b) => b.count - a.count);
+            
+            // Create x-axis
+            const xAxis = document.createElement('div');
+            xAxis.className = 'x-axis';
+            
+            // Create bars
+            const maxCount = Math.max(...osData.map(os => os.count));
+            const barWidth = 100 / (osData.length * 2); // Width as percentage
+            
+            osData.forEach((os, index) => {
+                // Create bar
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                const height = (os.count / maxCount) * 200; // Scale to 200px max height
+                bar.style.height = `${height}px`;
+                bar.style.left = `${(index * 2 + 1) * barWidth}%`;
+                bar.style.width = `${barWidth}%`;
+                
+                // Add label
+                const label = document.createElement('div');
+                label.className = 'x-label';
+                label.textContent = os.name;
+                xAxis.appendChild(label);
+                
+                // Add to chart
+                chartContainer.appendChild(bar);
+            });
+            
+            // Add x-axis to chart
+            chartContainer.appendChild(xAxis);
+        }
+        
+        // Function to update tables
+        function updateTables() {
+            // Update critical agents table
+            updateCriticalAgentsTable();
+            
+            // Update software inventory table
+            updateSoftwareInventoryTable();
+            
+            // Update patch inventory table
+            updatePatchInventoryTable();
+            
+            // Update system information table
+            updateSystemInformationTable();
+            
+            // Update hardware inventory table
+            updateHardwareInventoryTable();
+            
+            // Update domain controllers table
+            updateDomainControllersTable();
+        }
+        
+        // Function to update critical agents table
+        function updateCriticalAgentsTable() {
+            const tableBody = document.getElementById('criticalAgentsTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            
+            // Get critical agents data
+            const criticalAgents = domainData.criticalAgents || [];
+            
+            if (criticalAgents.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5">No critical agents data available</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            // Create rows
+            criticalAgents.forEach(agent => {
+                const row = document.createElement('tr');
+                
+                // Calculate compliance percentage
+                const installed = parseInt(agent.Installed || '0');
+                const missing = parseInt(agent.Missing || '0');
+                const total = installed + missing;
+                const compliance = total > 0 ? Math.round((installed / total) * 100) : 0;
+                
+                // Determine status color
+                let statusClass = 'status-green';
+                if (compliance < 70) {
+                    statusClass = 'status-red';
+                } else if (compliance < 90) {
+                    statusClass = 'status-yellow';
+                }
+                
+                row.innerHTML = `
+                    <td>${agent.AgentName || 'Unknown'}</td>
+                    <td><span class="status ${statusClass}"></span>${compliance >= 90 ? 'Healthy' : compliance >= 70 ? 'Warning' : 'Critical'}</td>
+                    <td>${agent.Installed || '0'}</td>
+                    <td>${agent.Missing || '0'}</td>
+                    <td>${compliance}%</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Function to update software inventory table
+        function updateSoftwareInventoryTable() {
+            const tableBody = document.getElementById('softwareInventoryTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            
+            // Get software inventory data
+            const software = domainData.software || [];
+            
+            if (software.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5">No software inventory data available</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            // Create rows (limit to 100 for performance)
+            software.slice(0, 100).forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.Name || 'Unknown'}</td>
+                    <td>${item.Version || 'N/A'}</td>
+                    <td>${item.Publisher || 'N/A'}</td>
+                    <td>${item.InstallDate || 'N/A'}</td>
+                    <td>${item.ServerCount || '1'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Add note if truncated
+            if (software.length > 100) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5">Showing 100 of ${software.length} items</td>`;
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Function to update patch inventory table
+        function updatePatchInventoryTable() {
+            const tableBody = document.getElementById('patchInventoryTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            
+            // Get patch inventory data
+            const patches = domainData.patches || [];
+            
+            if (patches.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5">No patch inventory data available</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            // Create rows (limit to 100 for performance)
+            patches.slice(0, 100).forEach(patch => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${patch.HotfixID || 'Unknown'}</td>
+                    <td>${patch.Description || 'N/A'}</td>
+                    <td>${patch.InstalledOn || 'N/A'}</td>
+                    <td>${patch.InstalledBy || 'N/A'}</td>
+                    <td>${patch.ServerCount || '1'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Add note if truncated
+            if (patches.length > 100) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5">Showing 100 of ${patches.length} items</td>`;
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Function to update system information table
+        function updateSystemInformationTable() {
+            const tableBody = document.getElementById('systemInformationTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            
+            // Get system information data
+            const systemInfo = domainData.systemInfo || [];
+            
+            if (systemInfo.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6">No system information data available</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            // Create rows
+            systemInfo.forEach(system => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${system.ServerName || 'Unknown'}</td>
+                    <td>${system.OSVersion || 'N/A'}</td>
+                    <td>${system.InstallDate || 'N/A'}</td>
+                    <td>${system.LastBootTime || 'N/A'}</td>
+                    <td>${system.UptimeDays || 'N/A'}</td>
+                    <td>${system.MemoryUsage || 'N/A'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Function to update hardware inventory table
+        function updateHardwareInventoryTable() {
+            const tableBody = document.getElementById('hardwareInventoryTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            
+            // Get hardware inventory data
+            const hardware = domainData.hardware || [];
+            
+            if (hardware.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6">No hardware inventory data available</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            // Create rows
+            hardware.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.ServerName || 'Unknown'}</td>
+                    <td>${item.Manufacturer || 'N/A'}</td>
+                    <td>${item.Model || 'N/A'}</td>
+                    <td>${item.Processor || 'N/A'}</td>
+                    <td>${item.MemoryGB || 'N/A'}</td>
+                    <td>${item.DiskSpaceGB || 'N/A'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Function to update domain controllers table
+        function updateDomainControllersTable() {
+            const tableBody = document.getElementById('domainControllersTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            
+            // Get domain controllers data
+            const domainControllers = domainData.domainControllers || [];
+            
+            if (domainControllers.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6">No domain controllers data available</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            // Create rows
+            domainControllers.forEach(dc => {
+                const row = document.createElement('tr');
+                
+                // Determine status
+                const status = dc.Status || 'Online';
+                let statusClass = 'status-green';
+                if (status.toLowerCase() === 'offline') {
+                    statusClass = 'status-red';
+                } else if (status.toLowerCase() === 'warning') {
+                    statusClass = 'status-yellow';
+                }
+                
+                row.innerHTML = `
+                    <td>${dc.Name || 'Unknown'}</td>
+                    <td>${dc.FQDN || 'N/A'}</td>
+                    <td>${dc.IPAddress || 'N/A'}</td>
+                    <td>${dc.Site || 'N/A'}</td>
+                    <td>${dc.OSVersion || 'N/A'}</td>
+                    <td><span class="status ${statusClass}"></span>${status}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
+
